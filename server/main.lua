@@ -24,18 +24,21 @@ Citizen.CreateThread(function()
 	end
 end)
 
-AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
+AddEventHandler('esx:playerLoaded', function(source)
+	local _source        = source
+	local xPlayer        = ESX.GetPlayerFromId(_source)
+
 	MySQL.Async.fetchAll('SELECT status FROM users WHERE identifier = @identifier', {
-		['@identifier'] = xPlayer.identifier
+			['@identifier'] = xPlayer.identifier
 	}, function(result)
 		local data = {}
 
-		if result[1].status then
+		if result[1].status ~= nil then
 			data = json.decode(result[1].status)
 		end
 
 		xPlayer.set('status', data)
-		TriggerClientEvent('esx_status:load', playerId, data)
+		TriggerClientEvent('esx_status:load', _source, data)
 	end)
 end)
 
